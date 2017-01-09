@@ -42,6 +42,9 @@ public:
   ///          executed by this execution unit.
   virtual void exec_later(resumable* ptr) = 0;
 
+  /// Checks if `ptr` has a high memory locality to this execution_unit
+  virtual bool is_neighbor(execution_unit* ptr) const = 0;
+
   /// Returns the enclosing actor system.
   /// @warning Must be set before the execution unit calls `resume` on an actor.
   actor_system& system() const {

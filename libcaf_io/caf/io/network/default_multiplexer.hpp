@@ -296,6 +296,8 @@ public:
 
   void exec_later(resumable* ptr) override;
 
+  bool is_neighbor(execution_unit*) const override;
+
   explicit default_multiplexer(actor_system* sys);
 
   ~default_multiplexer();

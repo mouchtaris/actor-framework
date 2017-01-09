@@ -429,6 +429,10 @@ void test_multiplexer::exec_later(resumable* ptr) {
   }
 }
 
+bool test_multiplexer::is_neighbor(execution_unit*) const {
+  return false;
+}
+
 void test_multiplexer::exec(resumable_ptr& ptr) {
   CAF_ASSERT(ptr != nullptr);
   CAF_LOG_TRACE("");

@@ -33,6 +33,9 @@ public:
 
   /// Delegates the resumable to the scheduler of `system()`.
   void exec_later(resumable* ptr) override;
+
+  /// It is assumed that `this` is never in the neighborhood of `ptr`.
+  bool is_neighbor(execution_unit* ptr) const override;
 };
 
 } // namespace caf

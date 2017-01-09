@@ -95,16 +95,17 @@ error scheduled_actor::default_exception_handler(pointer ptr,
 // -- constructors and destructors ---------------------------------------------
 
 scheduled_actor::scheduled_actor(actor_config& cfg)
-    : local_actor(cfg),
-      timeout_id_(0),
-      default_handler_(print_and_drop),
-      error_handler_(default_error_handler),
-      down_handler_(default_down_handler),
-      exit_handler_(default_exit_handler),
-      private_thread_(nullptr)
+    : local_actor(cfg)
+    , timeout_id_(0)
+    , default_handler_(print_and_drop)
+    , error_handler_(default_error_handler)
+    , down_handler_(default_down_handler)
+    , exit_handler_(default_exit_handler)
+    , private_thread_(nullptr)
 # ifndef CAF_NO_EXCEPTIONS
-      , exception_handler_(default_exception_handler)
+    , exception_handler_(default_exception_handler)
 # endif // CAF_NO_EXCEPTIONS
+    , initial_eu_(nullptr)
       {
   // nop
 }
@@ -135,9 +136,29 @@ void scheduled_actor::enqueue(mailbox_element_ptr ptr,
         private_thread_->resume();
       } else {
         if (eu)
-          eu->exec_later(this);
-        else
-          home_system().scheduler().enqueue(this);
+          // msg is received from an other scheduled actor
+          if (eu == initial_eu_ || eu->is_neighbor(initial_eu_)) {
+            // is `eu` equal to the initial on or a neighbor 
+            // then this actor is enqeued in current eu as next job
+            eu->exec_later(this); // internal enqueue
+          } else {
+            // `eu` has a high memory distance to this actor
+            if (initial_eu_) { 
+              // for performance reasons enqueue actor on initial `eu`
+              initial_eu_->exec_later(this); //??? should be an external enqeueu not an internal
+            } else {
+              // actor was lazy spawned and never scheduled
+              // let's find it a nice home 
+              home_system().scheduler().enqueue(this); // central enqueue
+            }
+          }
+        else 
+          // msg is received from non-actor or context or from a detached actor
+          if (initial_eu_) {
+            initial_eu_->exec_later(this); //??? should be an external enqeueu not an internal
+          } else {
+            home_system().scheduler().enqueue(this); // central enqueue
+          }
       }
       break;
     }
@@ -518,7 +539,8 @@ bool scheduled_actor::activate(execution_unit* ctx) {
         CAF_LOG_DEBUG("actor_done() returned true right after make_behavior()");
         return false;
       } else {
-        CAF_LOG_DEBUG("initialized actor:" << CAF_ARG(name()));
+        CAF_LOG_DEBUG("initialized actor:" << CAF_ARG(name()) << CAF_ARG(ctx));
+        initial_eu_ = ctx;
       }
     }
 # ifndef CAF_NO_EXCEPTIONS

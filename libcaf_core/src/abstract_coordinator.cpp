@@ -349,6 +349,9 @@ void abstract_coordinator::cleanup_and_release(resumable* ptr) {
     void exec_later(resumable* job) override {
       resumables.push_back(job);
     }
+    bool is_neighbor(execution_unit*) const override {
+      return false;
+    }
     std::vector<resumable*> resumables;
   };
   switch (ptr->subtype()) {

@@ -729,6 +729,10 @@ void default_multiplexer::exec_later(resumable* ptr) {
   }
 }
 
+bool default_multiplexer::is_neighbor(execution_unit*) const {
+  return false;
+}
+
 connection_handle default_multiplexer::add_tcp_scribe(abstract_broker* self,
                                                       native_socket fd) {
   CAF_LOG_TRACE("");

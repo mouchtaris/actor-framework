@@ -141,6 +141,7 @@ public:
 
 protected:
   void exec_later(resumable* ptr) override;
+  bool is_neighbor(execution_unit*) const override;
 
 private:
   using resumable_ptr = intrusive_ptr<resumable>;

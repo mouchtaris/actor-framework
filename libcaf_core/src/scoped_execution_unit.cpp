@@ -33,4 +33,8 @@ void scoped_execution_unit::exec_later(resumable* ptr) {
   system().scheduler().enqueue(ptr);
 }
 
+bool scoped_execution_unit::is_neighbor(execution_unit*) const {
+  return false;
+}
+
 } // namespace caf

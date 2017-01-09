@@ -338,6 +338,10 @@ public:
   /// @returns `true` if cleanup code was called, `false` otherwise.
   bool finalize();
 
+  execution_unit* initial_execution_unit() {
+    return initial_eu_; 
+  }
+
   /// @endcond
 
 protected:
@@ -376,6 +380,9 @@ protected:
   /// Customization point for setting a default exception callback.
   exception_handler exception_handler_;
 # endif // CAF_NO_EXCEPTIONS
+
+  /// Stores the initial execution unit.
+  execution_unit* initial_eu_;
 
   /// @endcond
 };
